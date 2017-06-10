@@ -141,16 +141,19 @@ def Mov_StartingPoint() :
 
 # 볼트로 이동
 def Mov_Target(X, Y) :
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x, y, z + 100, rHead, 0)  # z 위로 이동
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x, y, z + 20, rHead, 0)  # z 위로 이동
     time.sleep(1)
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x + 100, y, z, rHead, 0)  # x이동
+    time.sleep(1)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x + 100, y + 10, z, rHead, 0)  # y이동
     time.sleep(1)
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x, y, z - 25, rHead, 0)  # z 아래로 이동
     time.sleep(1)
 
 # 너트 조이기
 def Fasten(X, Y) :
-    # 너트 감기 -130 ~ 130 => 그립ing이랑 싱크를 맞춰 줘야해, '-' 회전방향이 너트 돌리는 방향?
+    # 너트 감기 -130 ~ 130 => 그립ing이랑 싱크를 맞춰 줘야해
+    # '-' 회전방향이 너트 돌리는 방향?
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x + 100, y, z - 25, rHead, 0)
     time.sleep(1)
     for i in range(0, 5):
@@ -169,8 +172,6 @@ def Fasten(X, Y) :
     dType.SetEndEffectorGripper(api, 0, 0, 0)  # Disable gripper
     time.sleep(1)
 
-# ==========================
-
 CON_STR = {
     dType.DobotConnect.DobotConnect_NoError:  "DobotConnect_NoError",
     dType.DobotConnect.DobotConnect_NotFound: "DobotConnect_NotFound",
@@ -183,21 +184,16 @@ api = dType.load()
 state = dType.ConnectDobot(api, "", 115200)[0]
 print("Connect status:",CON_STR[state])
 
-#dType.SetEndEffectorGripper(api, 0, 0, 0)  # Disable gripper
-
 if (state == dType.DobotConnect.DobotConnect_NoError):
 
     #Clean Command Queued
     dType.SetQueuedCmdClear(api)
 
     #Async Motion Params Setting
-    dType.SetPTPJointParams(api, 200, 200, 200, 200, 200, 200, 200, 200)
-    dType.SetPTPCoordinateParams(api, 200, 200, 200, 200)
-    dType.SetPTPJumpParams(api, 10, 200)
-    dType.SetPTPCommonParams(api, 100, 100)
-
-    #Async Home
-    #dType.SetHOMECmd(api, temp = 0, isQueued = 0)
+    dType.SetPTPJointParams(api, 50, 50, 50, 50, 50, 50, 200, 200)
+    dType.SetPTPCoordinateParams(api, 50, 50, 50, 200)
+    dType.SetPTPJumpParams(api, 10, 100)
+    dType.SetPTPCommonParams(api, 50, 50)
 
     pos = dType.GetPose(api)
     x = pos[0]
