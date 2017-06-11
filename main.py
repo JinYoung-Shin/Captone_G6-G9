@@ -263,8 +263,8 @@ def Mov_StartingPoint(x,y,z) :
 
 # 볼트로 이동
 def Mov_Target(X, Y, x, y) :
-    newX = -0.022 * X + 1.1548 * Y + x - 225.1386
-    newY = 0.3804 * X - 0.6462 * Y + y - 0.8321
+    newX = -0.0394 * X + 1.1523 * Y + x - 224
+    newY = 0.3878 * X - 0.6521 * Y
     print(newX)
     print(newY)
     '''
@@ -277,38 +277,79 @@ def Mov_Target(X, Y, x, y) :
     newXX = newX + R_X
     newYY = newY + R_Y
     '''
+
+    '''
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x-50, y, 40, 0, 0)  # z 위로 이동
     time.sleep(5)
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, y, 40, 0, 0)  # x이동
-    time.sleep(10)
+    time.sleep(5)
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, newY, 40, 0, 0)  # y이동
-    time.sleep(10)
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, newY, 15, 0, 0)  # z 아래로 이동
-    time.sleep(6)
+    time.sleep(5)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, newY, 13, 0, 0)  # z 아래로 이동
+    time.sleep(5)
+    '''
+
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x-50, y, 40, 0, 0)  # z 위로 이동
+    time.sleep(5)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, y, 40, 0, 0)  # x이동
+    time.sleep(5)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, -76.9479, 40, 0, 0)  # y이동
+    time.sleep(5)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, -76.9479, 16, 0, 0)  # z 아래로 이동
+    time.sleep(5)
 
 # 너트 조이기
 def Fasten(X, Y, x, y) :
     # 너트 감기 -130 ~ 130 => 그립ing이랑 싱크를 맞춰 줘야해
     # '-' 회전방향이 너트 돌리는 방향?
-    newX = 0.0032 * X + 1.0449 * Y + x - 224.6821
-    newY = 0.3761 * X - 0.5965 * Y + y - 0.4148
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, 0, 0)
-    time.sleep(3)
-    for i in range(0, 1):
-        dType.SetEndEffectorGripper(api, 1, 0, 0)
-        time.sleep(1)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, 130, 0)  # grip off, 돌리기
-        time.sleep(2)
+    newX = -0.0394 * X + 1.1523 * Y + x - 224
+    newY = 0.3878 * X - 0.6521 * Y
+    #dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, 0, 0)
+    #time.sleep(1)
+    '''
+    for i in range(0, 3):
         dType.SetEndEffectorGripper(api, 1, 1, 0)
-        time.sleep(1)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, -130, 0)  # grip on, 나사 감기
         time.sleep(2)
-    time.sleep(1)
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 13, -120, 0)  # grip on, 나사 감기
+        time.sleep(3)
+        dType.SetEndEffectorGripper(api, 1, 0, 0)
+        time.sleep(2)
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 13, 120, 0)  # grip off, 돌리기
+        time.sleep(3)
+    dType.SetEndEffectorGripper(api, 1, 1, 0)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 13, -120, 0)  # grip on, 나사 감기
+    time.sleep(3)
     dType.SetEndEffectorGripper(api, 1, 0, 0)
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, 0, 0)
-    time.sleep(1)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 13, 0, 0)
+    time.sleep(2)
     dType.SetEndEffectorGripper(api, 0, 0, 0)  # Disable gripper
-    time.sleep(1)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 30, 0, 0)
+    time.sleep(2)
+    '''
+    for i in range(0, 5):
+        dType.SetEndEffectorGripper(api, 1, 1, 0)
+        time.sleep(2)
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, 227.1407, -76.9479, 16, -120, 0)  # grip on, 나사 감기
+        time.sleep(3)
+        dType.SetEndEffectorGripper(api, 1, 0, 0)
+        time.sleep(2)
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, 227.14075, -76.9479, 16, 120, 0)  # grip off, 돌리기
+        time.sleep(3)
+    dType.SetEndEffectorGripper(api, 1, 1, 0)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, 227.1407, -76.9479, 16, -120, 0)  # grip on, 나사 감기
+    time.sleep(3)
+    dType.SetEndEffectorGripper(api, 1, 0, 0)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, 227.1407, -76.9479, 16, 0, 0)
+    time.sleep(2)
+    dType.SetEndEffectorGripper(api, 0, 0, 0)  # Disable gripper
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, 227.1407, -76.9479, 30, 0, 0)
+    time.sleep(2)
 
 
 CON_STR = {

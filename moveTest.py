@@ -34,11 +34,24 @@ y = pos[1]
 z = pos[2]
 rHead = pos[3]
 
+
 Main.Mov_StartingPoint(x,y,z)
 val = Main.Cam()
 Main.Mov_Target(val[0], val[1], x, y)
-#Main.Fasten(val[0], val[1], x, y)
+Main.Fasten(val[0], val[1], x, y)
 Main.Mov_StartingPoint(x,y,z)
 
+'''
+for i in range(0, 3):
+    dType.SetEndEffectorGripper(api, 1, 0, 0)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x, y, 15, 120, 0)  # grip off, 돌리기
+    time.sleep(3)
+    dType.SetEndEffectorGripper(api, 1, 1, 0)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x, y, 15, -120, 0)  # grip on, 나사 감기
+    time.sleep(3)
+dType.SetEndEffectorGripper(api, 0, 0, 0)
+'''
 dType.DisconnectDobot(api)
 
