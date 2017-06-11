@@ -4,9 +4,19 @@ import math
 import time
 import DobotDllType as dType
 import speech_recognition as sr
+import pygame
+import copy
 
 def Cam() :
+    pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+    bang = pygame.mixer.Sound('ready.wav')
+    bang.play()
+    time.sleep(bang.get_length())
+
     webcam = cv2.VideoCapture(0)
+
+    # sig = 0
+
 
     if webcam.isOpened():  # try to get the first frame
         rval, image = webcam.read()
@@ -15,61 +25,162 @@ def Cam() :
 
     # define the list of acceptable colors
     colors = [([0, 133, 77], [255, 173, 127])]
-    blue = [([110, 50, 50]), [130, 255, 255]]
+
+    # colors = [([110, 100, 100], [130, 255, 255])]
+
 
     while rval:
         # loop over the boundaries
         for (lower, upper) in colors:
-            # create NumPy arrays from the boundaries
+            # s   create NumPy arrays from the boundaries
             lower = np.array(lower, dtype="uint8")
             upper = np.array(upper, dtype="uint8")
             imgg = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb)
             # find the colors within the specified boundaries and apply
             # the mask
             mask = cv2.inRange(imgg, lower, upper)
-            output = cv2.bitwise_and(imgg, imgg, mask=mask)
+            output = cv2.bitwise_and(imgg, imgg, mask=mask)  # output = cv2.bitwise_and(imgg, imgg, mask=mask)
+            # output2 = cv2.cvtColor(output, cv2.COLOR_BGR2YCrCb)
+            # cv2.circle(output, (100, 100), 50, (0, 255, 0), 2)
+            # j =image.getpixel((100, 100))
+            # show the images
+        # for (lower2, upper2) in colors:
+        #     # s   create NumPy arrays from the boundaries
+        #     lower2 = np.array(lower2, dtype="uint8")
+        #     upper2 = np.array(upper2, dtype="uint8")
+        #     imgg = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb)
+        #     # find the colors within the specified boundaries and apply
+        #     # the mask
+        #     mask = cv2.inRange(image, lower, upper)
+        #     output = cv2.bitwise_and(imgg, imgg, mask=mask)  # output = cv2.bitwise_and(imgg, imgg, mask=mask)
+        #     output2 = cv2.cvtColor(output, cv2.COLOR_BGR2YCrCb)
+
+
+
 
         rval, image = webcam.read()
         edges = cv2.Canny(output, 30, 30, apertureSize=3)
         lines = cv2.HoughLines(edges, 1, np.pi / 180, 100)
-
+        image2 = copy.copy(image)
+        # image2 = image
         img = cv2.medianBlur(image, 15)
         imgg = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        circles = cv2.HoughCircles(imgg, cv2.HOUGH_GRADIENT, 1, 10,
-                                   param1=40, param2=40, minRadius=10, maxRadius=100)
 
+        #    imga = cv2.medianBlur(output2, 15)
+
+        # imgga = cv2.cvtColor(imga, cv2.COLOR_BGR2GRAY)
+        circles = cv2.HoughCircles(imgg, cv2.HOUGH_GRADIENT, 1, 5,
+                                   param1=50, param2=30, minRadius=0, maxRadius=15)
         if circles != None:
+            index = 0
             for i in circles[0, :]:
                 # draw the outer circle
-                cv2.circle(image, (i[0], i[1]), i[2], (0, 255, 0), 2)
-                # draw the center of the circle
-                cv2.circle(image, (i[0], i[1]), 2, (255, 0, 0), 3)
+                if index < 2:
+                    cv2.circle(image2, (i[0], i[1]), i[2], (0, 255, 0), 2)
+                    print(i[0], i[1])
+                    # cv2.circle(image, (i[0], i[1]), i[2], (0, 255, 0), 2)
+                    # print(circles[0,0])
+
+                    # draw the center of the circle
+                    cv2.circle(image2, (i[0], i[1]), 2, (0, 0, 255), 3)
+                    # cv2.circle(image, (i[0], i[1]), 2, (0, 0, 255), 3)
+                    index = index + 1
 
         if lines != None:
+            index2 = 0
             for x in range(0, 1):
-                for rho, theta in lines[x]:
-                    x1 = int(np.cos(theta) * rho + 1000 * (-np.sin(theta)))
-                    y1 = int(np.sin(theta) * rho + 1000 * np.cos(theta))
-                    x2 = int(np.cos(theta) * rho - 1000 * (-np.sin(theta)))
-                    y2 = int(np.sin(theta) * rho - 1000 * np.cos(theta))
-                    cv2.line(output, (x1, y1), (x2, y2), (0, 0, 255), 1)
-                    cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 1)
+                if (index2 < 3):
+                    for rho, theta in lines[x]:
+                        x1 = int(np.cos(theta) * rho + 1000 * (-np.sin(theta)))
+                        y1 = int(np.sin(theta) * rho + 1000 * np.cos(theta))
+                        x2 = int(np.cos(theta) * rho - 1000 * (-np.sin(theta)))
+                        y2 = int(np.sin(theta) * rho - 1000 * np.cos(theta))
+                        cv2.line(output, (x1, y1), (x2, y2), (0, 0, 255), 1)
+                        cv2.line(image2, (x1, y1), (x2, y2), (0, 0, 255), 1)
+                        index2 = index2 + 1
 
-        cv2.imshow("images", np.hstack([image, output]))
+        cv2.imshow("images", np.hstack([image2, output]))  # output
+        cv2.imshow("tes ", edges)
+        #    cv2.imshow("test",imga)
+
+
+        # r = sr.Recognizer()
+        # with sr.Microphone() as source:
+        #     print("Say something!")
+        #
+        #     audio = r.listen(source)
+        #
+        # try:
+        #         # print(tmp)
+        #         print("Google Speech Recognition thinks you said " + r.recognize_google(audio))
+        #
+        # except sr.UnknownValueError:
+        #         pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+        #         bang = pygame.mixer.Sound('again.wav')
+        #         bang.play()
+        #         time.sleep(bang.get_length())
+        #         continue
+        #
+        # except sr.RequestError as e:
+        #         pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+        #         bang = pygame.mixer.Sound('again.wav')
+        #         bang.play()
+        #         time.sleep(bang.get_length())
+        #         print("Could not request results from Google Speech Recognition service; {0}".format(e))
+        #         continue
+        #
+        # if r.recognize_google(audio) == "this":
+        #             if lines != None and circles != None:
+        #                 pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+        #                 bang = pygame.mixer.Sound('yes.wav')
+        #                 bang.play()
+        #                 time.sleep(bang.get_length())
+        #                 break;
+        #
+        #             if lines != None and circles == None:
+        #                 pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+        #                 bang = pygame.mixer.Sound('bolt.wav')
+        #                 bang.play()
+        #                 time.sleep(bang.get_length())
+        #             if circles != None and lines == None:
+        #                 pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+        #                 bang = pygame.mixer.Sound('position.wav')
+        #                 bang.play()
+        #                 time.sleep(bang.get_length())
+
+
         key = cv2.waitKey(20)
-
-        if key in [27, ord('Q'), ord('q')]:  # exit on ESC(q)
-            # Exception for no line or circle
+        if key in [27, ord('Q'), ord('q')]:  # exit on ESC
             if lines != None and circles != None:
-                cv2.destroyWindow("images")
-                break
-            else:
-                print("circle or line is not detected")
+                pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+                bang = pygame.mixer.Sound('yes.wav')
+                bang.play()
+                time.sleep(bang.get_length())
+                break;
 
-    img = cv2.medianBlur(image, 15)
-    imgg = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    circles = cv2.HoughCircles(imgg, cv2.HOUGH_GRADIENT, 1, 10,
-                               param1=50, param2=40, minRadius=0, maxRadius=100)
+            if lines != None and circles == None:
+                pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+                bang = pygame.mixer.Sound('bolt.wav')
+                bang.play()
+                time.sleep(bang.get_length())
+            if circles != None and lines == None:
+                pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+                bang = pygame.mixer.Sound('position.wav')
+                bang.play()
+                time.sleep(bang.get_length())
+
+    # imga = cv2.medianBlur(output2, 15)
+    #
+    # imgga = cv2.cvtColor(imga, cv2.COLOR_BGR2GRAY)
+    # circles = cv2.HoughCircles(imgga, cv2.HOUGH_GRADIENT, 1, 5,
+    #                                param1=50, param2=30, minRadius=0, maxRadius=100)
+
+
+
+
+
+    # circles = cv2.HoughCircles(imgg, cv2.HOUGH_GRADIENT, 1, 10,
+    #                                param1=50, param2=30, minRadius=0, maxRadius=30)
     for x in range(0, 1):
         for rho, theta in lines[x]:
             x1 = int(np.cos(theta) * rho + 1000 * (-np.sin(theta)))
@@ -77,42 +188,53 @@ def Cam() :
             x2 = int(np.cos(theta) * rho - 1000 * (-np.sin(theta)))
             y2 = int(np.sin(theta) * rho - 1000 * np.cos(theta))
             cv2.line(output, (x1, y1), (x2, y2), (0, 0, 255), 1)
-            cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 1)
+            # cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 1)
 
             y1 = -1 * y1
             y2 = -1 * y2
             a = (y2 - y1) / (x2 - x1)
 
-    d = [1000, 1000, 1000, 1000, 1000, 1000]
+            # print(x1, y1)
+            # print(x2, y2)
+            # print(a)
+
+    d = [4000, 4000, 4000, 4000, 4000]
     j = 0
 
     dex = 0;
 
     for i in circles[0, :]:
         # draw the outer circle
-        if dex < 5:
-            cv2.circle(image, (i[0], i[1]), i[2], (0, 255, 0), 2)
+        if dex < 2:
+            cv2.circle(image2, (i[0], i[1]), i[2], (0, 255, 0), 2)
+            # print(circles[0,0])
             print(i[0], i[1])
             # draw the center of the circle
-            cv2.circle(image, (i[0], i[1]), 2, (255, 0, 0), 3)
+            cv2.circle(image2, (i[0], i[1]), 2, (0, 0, 255), 3)
             i[1] = -1 * i[1]
             d[j] = abs(a * (i[0] - x1) + y1 - i[1]) / (math.sqrt(a * a + 1))
             j = j + 1
             dex = dex + 1
-
     print(d)
+
     print("d = ", min(d))
+
     j = 0
     for i in d:
         if min(d) == i:
             mi = j
         j = j + 1
+    print("index :", mi)
 
-    cv2.imshow('Edges', image)
+    print(circles[0, mi][0], circles[0, mi][1])
+
+    cv2.imshow('Edges', image2)
     cv2.imshow('Output', output)
-    cv2.waitKey()
+    # cv2.imshow('Mask',mask)
+    # cv2.imshow('Output',output)
+    #cv2.waitKey()
 
-    return (circles[0,mi][0],circles[0,mi][1])
+    return (circles[0,mi][0], -circles[0,mi][1])
 
 def Voice() :
     # obtain audio from the microphone
@@ -135,42 +257,59 @@ def Voice() :
     return r.recognize_google(audio)
 
 # 원(처음)위치로 이동
-def Mov_StartingPoint() :
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, 145, 0, 0, 0, 0)
-    time.sleep(1)
+def Mov_StartingPoint(x,y,z) :
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x-50, y, z, 0, 0)
+    time.sleep(3)
 
 # 볼트로 이동
-def Mov_Target(X, Y) :
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x, y, z + 20, rHead, 0)  # z 위로 이동
-    time.sleep(1)
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x + 100, y, z, rHead, 0)  # x이동
-    time.sleep(1)
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x + 100, y + 10, z, rHead, 0)  # y이동
-    time.sleep(1)
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x, y, z - 25, rHead, 0)  # z 아래로 이동
-    time.sleep(1)
+def Mov_Target(X, Y, x, y) :
+    newX = -0.022 * X + 1.1548 * Y + x - 225.1386
+    newY = 0.3804 * X - 0.6462 * Y + y - 0.8321
+    print(newX)
+    print(newY)
+    '''
+    theta = math.atan(0.0033441 * newX)
+    OQ = math.sqrt(1836.18 * (1-math.cos(theta)))
+    R_X = OQ * math.sin(theta/2)
+    R_Y = R_X * math.tan(theta)
+    print("RX", R_X)
+    print("RY", R_Y)
+    newXX = newX + R_X
+    newYY = newY + R_Y
+    '''
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x-50, y, 40, 0, 0)  # z 위로 이동
+    time.sleep(5)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, y, 40, 0, 0)  # x이동
+    time.sleep(10)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, newY, 40, 0, 0)  # y이동
+    time.sleep(10)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, newY, 15, 0, 0)  # z 아래로 이동
+    time.sleep(6)
 
 # 너트 조이기
-def Fasten(X, Y) :
+def Fasten(X, Y, x, y) :
     # 너트 감기 -130 ~ 130 => 그립ing이랑 싱크를 맞춰 줘야해
     # '-' 회전방향이 너트 돌리는 방향?
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x + 100, y, z - 25, rHead, 0)
-    time.sleep(1)
-    for i in range(0, 5):
+    newX = 0.0032 * X + 1.0449 * Y + x - 224.6821
+    newY = 0.3761 * X - 0.5965 * Y + y - 0.4148
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, 0, 0)
+    time.sleep(3)
+    for i in range(0, 1):
         dType.SetEndEffectorGripper(api, 1, 0, 0)
         time.sleep(1)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x + 100, y, z - 25, 130, 0)  # grip off, 돌리기
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, 130, 0)  # grip off, 돌리기
         time.sleep(2)
         dType.SetEndEffectorGripper(api, 1, 1, 0)
         time.sleep(1)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x + 100, y, z - 25, -130, 0)  # grip on, 나사 감기
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, -130, 0)  # grip on, 나사 감기
         time.sleep(2)
     time.sleep(1)
     dType.SetEndEffectorGripper(api, 1, 0, 0)
-    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x + 100, y, z - 25, rHead, 0)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 15, 0, 0)
     time.sleep(1)
     dType.SetEndEffectorGripper(api, 0, 0, 0)  # Disable gripper
     time.sleep(1)
+
 
 CON_STR = {
     dType.DobotConnect.DobotConnect_NoError:  "DobotConnect_NoError",
@@ -180,6 +319,7 @@ CON_STR = {
 #Load Dll
 api = dType.load()
 
+'''
 #Connect Dobot
 state = dType.ConnectDobot(api, "", 115200)[0]
 print("Connect status:",CON_STR[state])
@@ -201,7 +341,7 @@ if (state == dType.DobotConnect.DobotConnect_NoError):
     z = pos[2]
     rHead = pos[3]
 
-    '''
+
     dType.SetEndEffectorGripper(api, 1, 0, 0)  # 열기
     time.sleep(1)
 
@@ -210,12 +350,12 @@ if (state == dType.DobotConnect.DobotConnect_NoError):
     time.sleep(1)
     dType.SetEndEffectorGripper(api, 1, 1, 0)  # 닫기(Grip)
     time.sleep(1)
-    '''
+
 
     dType.DisconnectDobot(api)
     Val_Cam = Cam()
 
-    '''
+
     #Call Cam function
     Val_Cam = Cam()
     print("here", end="");
@@ -233,7 +373,8 @@ if (state == dType.DobotConnect.DobotConnect_NoError):
         else
             print("인식을 못했습니다. 다시 말씀해주세요")
             continue
-    '''
+ 
 
 #Disconnect Dobot
 dType.DisconnectDobot(api)
+'''
