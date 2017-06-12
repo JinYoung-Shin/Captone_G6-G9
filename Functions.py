@@ -9,7 +9,7 @@ import DobotDllType as dType
 # Video recognition function
 def Cam() :
     pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
-    bang = pygame.mixer.Sound('ready.wav')
+    bang = pygame.mixer.Sound('voice/ready.wav')
     bang.play()
     time.sleep(bang.get_length())
 
@@ -74,19 +74,19 @@ def Cam() :
         if key in [27, ord('Q'), ord('q')]:  # exit on ESC, q
             if lines != None and circles != None:
                 pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
-                bang = pygame.mixer.Sound('yes.wav')
+                bang = pygame.mixer.Sound('voice/yes.wav')
                 bang.play()
                 time.sleep(bang.get_length())
                 break;
 
             if lines != None and circles == None:
                 pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
-                bang = pygame.mixer.Sound('bolt.wav')
+                bang = pygame.mixer.Sound('voice/bolt.wav')
                 bang.play()
                 time.sleep(bang.get_length())
             if circles != None and lines == None:
                 pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
-                bang = pygame.mixer.Sound('position.wav')
+                bang = pygame.mixer.Sound('voice/position.wav')
                 bang.play()
                 time.sleep(bang.get_length())
 
@@ -133,7 +133,8 @@ def Cam() :
     return (circles[0,mi][0], -circles[0,mi][1])
 
 # Move starting point function
-def Mov_StartingPoint(x,y,z) : # x, y, z는 초기 teaching 위치 x, y, z 값
+# x, y, z는 초기 teaching 위치 x,y,z 값(GetPose로 얻음)
+def Mov_StartingPoint(x,y,z) :
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x-50, y, z, 0, 0)
     time.sleep(3)
 
