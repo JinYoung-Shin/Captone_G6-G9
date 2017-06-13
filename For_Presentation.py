@@ -27,9 +27,25 @@ y = pos[1]
 z = pos[2]
 rHead = pos[3]
 
-func.Mov_StartingPoint(x, y, z) # 웹캠 가리지 않도록 위치 조정
+func.Mov_StartingPoint(api, x, y, z) # 웹캠 가리지 않도록 위치 조정
 val = func.Cam() # 캠 시작, 영상 인식, ESC 키 입력에 좌표 반환
-func.Robot_Work(val[1], val[2], x, y, z)
-func.Mov_StartingPoint(x, y, z) # 작업 완료 후 원위치로 이동
+func.Robot_Work(api, val[0], val[1], x, y, z)
+func.Mov_StartingPoint(api, x, y, z) # 작업 완료 후 원위치로 이동
+
+'''
+func.Mov_StartingPoint(api, x, y, z) # 작업 완료 후 원위치로 이동
+while True:
+    val = func.Cam()  # 캠 시작, 영상 인식, ESC 키 입력에 좌표 반환
+    Val_Voice = func.Voice()
+    # Voice 값은 첫글자 대문자로 들어온다.
+    if func.Voice != None:
+        # 볼트로 이동 및 조이기
+        func.Robot_Work(api, val[0], val[1], x, y, z)
+        break
+    else:
+        print("인식을 못했습니다. 다시 말씀해주세요")
+        continue
+func.Mov_StartingPoint(api, x, y, z) # 작업 완료 후 원위치로 이동
+'''
 
 func.dType.DisconnectDobot(api)

@@ -181,6 +181,19 @@ def Mov_Target(X, Y, x, y) :
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newXX, newYY, 13, 0, 0)  # z 아래로 이동
     time.sleep(5)
 
+def Mov_Target_Demo(X, Y, x, y) :
+    newX = -0.0394 * X + 1.1523 * Y + x - 224 # (x - (처음 x)) plus 처리 해주기
+    newY = 0.3878 * X - 0.6521 * Y # y값 리셋
+
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x-50, y, 40, 0, 0)  # z 위로 이동
+    time.sleep(5)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, y, 40, 0, 0)  # x이동
+    time.sleep(5)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, newY, 40, 0, 0)  # y이동
+    time.sleep(5)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, newX, newY, 13, 0, 0)  # z 아래로 이동
+    time.sleep(5)
+
 # 너트 조이기
 # X,Y : 영상 처리로 얻은 이동 대상 좌표 값
 # x,y,z : GetPose로 얻은 x,y,z 좌표값
@@ -221,6 +234,35 @@ def Fasten(X, Y, x, y) :
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newXX, newYY, 30, 0, 0)
     time.sleep(2)
 
+def Fasten_Demo(X, Y, x, y) :
+    # 너트 감기 -120 ~ 120 => 그립ing이랑 싱크를 맞춰 줘야해
+    # '-' 회전방향이 너트 돌리는 방향?
+    newX = -0.0394 * X + 1.1523 * Y + x - 224 # 처음 x 값 세팅
+    newY = 0.3878 * X - 0.6521 * Y # y값 리셋
+
+    # 잡아 돌리기 싱크 왔다갔다 함... 2, 3 반복 또는 1, 2 반복으로 맞추어 볼것
+    for i in range(0, 3):
+        dType.SetEndEffectorGripper(api, 1, 1, 0)
+        time.sleep(2)
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 13, -120, 0)  # grip on, 나사 감기
+        time.sleep(3)
+        dType.SetEndEffectorGripper(api, 1, 0, 0)
+        time.sleep(2)
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 13, 120, 0)  # grip off, 돌리기
+        time.sleep(3)
+    dType.SetEndEffectorGripper(api, 1, 1, 0)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 13, -120, 0)  # grip on, 나사 감기
+    time.sleep(3)
+    dType.SetEndEffectorGripper(api, 1, 0, 0)
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 13, 0, 0)
+    time.sleep(2)
+    dType.SetEndEffectorGripper(api, 0, 0, 0)  # Disable gripper
+    time.sleep(2)
+    dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, newX, newY, 30, 0, 0)
+    time.sleep(2)
+
 CON_STR = {
     dType.DobotConnect.DobotConnect_NoError:  "DobotConnect_NoError",
     dType.DobotConnect.DobotConnect_NotFound: "DobotConnect_NotFound",
@@ -255,6 +297,8 @@ if (state == dType.DobotConnect.DobotConnect_NoError):
     #Call Cam function
     Val_Cam = Cam()
 
+    '''
+    #Ideal Version
     #Call Voice function
     while True :
         Val_Voice = Voice()
@@ -267,6 +311,12 @@ if (state == dType.DobotConnect.DobotConnect_NoError):
         else :
             print("인식을 못했습니다. 다시 말씀해주세요")
             continue
+    '''
+
+    #Minor Version
+    Mov_Target_Demo(Val_Cam[0], Val_Cam[1], x, y)
+    Fasten_Demo(Val_Cam[0], Val_Cam[1], x, y)
+
     dType.Mov_StartingPoint(x, y, z)
 
 #Disconnect Dobot

@@ -5,9 +5,45 @@ import time
 import pygame
 import copy
 import DobotDllType as dType
+import speech_recognition as sr
 
 # Video recognition function
 def Cam() :
+    '''
+    while True:
+
+        pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+        bang = pygame.mixer.Sound('order.wav')
+        bang.play()
+        time.sleep(bang.get_length())
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Say something!")
+
+            audio = r.listen(source)
+
+            # tmp = r.recognize_google(audio)
+
+        try:
+            # print(tmp)
+            print("Google Speech Recognition thinks you said " + r.recognize_google(audio))
+            if r.recognize_google(audio) != None:
+                break
+
+        except sr.UnknownValueError:
+            pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+            bang = pygame.mixer.Sound('again.wav')
+            bang.play()
+            time.sleep(bang.get_length())
+
+        except sr.RequestError as e:
+            pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
+            bang = pygame.mixer.Sound('again.wav')
+            bang.play()
+            time.sleep(bang.get_length())
+            print("Could not request results from Google Speech Recognition service; {0}".format(e))
+    '''
+
     pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
     bang = pygame.mixer.Sound('voice/ready.wav')
     bang.play()
@@ -47,9 +83,8 @@ def Cam() :
             index = 0
             for i in circles[0, :]:
                 # draw the outer circle
-                if index < 2:
+                if index < 3:
                     cv2.circle(image2, (i[0], i[1]), i[2], (0, 255, 0), 2)
-                    print(i[0], i[1])
                     # draw the center of the circle
                     cv2.circle(image2, (i[0], i[1]), 2, (0, 0, 255), 3)
                     index = index + 1
@@ -57,7 +92,7 @@ def Cam() :
         if lines != None:
             index2 = 0
             for x in range(0, 1):
-                if (index2 < 3):
+                if (index2 < 1):
                     for rho, theta in lines[x]:
                         x1 = int(np.cos(theta) * rho + 1000 * (-np.sin(theta)))
                         y1 = int(np.sin(theta) * rho + 1000 * np.cos(theta))
@@ -71,7 +106,8 @@ def Cam() :
         cv2.imshow("tes ", edges)
 
         key = cv2.waitKey(20)
-        if key in [27, ord('Q'), ord('q')]:  # exit on ESC, q
+        if key in [27, ord('Q'), ord('q')] and index ==3:  # exit on ESC, q
+
             if lines != None and circles != None:
                 pygame.mixer.init(frequency=16500, size=-16, channels=2, buffer=4096)
                 bang = pygame.mixer.Sound('voice/yes.wav')
@@ -109,7 +145,7 @@ def Cam() :
 
     for i in circles[0, :]:
         # draw the outer circle
-        if dex < 2:
+        if dex < 3:
             cv2.circle(image2, (i[0], i[1]), i[2], (0, 255, 0), 2)
             print(i[0], i[1])
             # draw the center of the circle
@@ -124,53 +160,57 @@ def Cam() :
         if min(d) == i:
             mi = j
         j = j + 1
-    print(circles[0, mi][0], circles[0, mi][1])
+
 
     cv2.imshow('Edges', image2)
     cv2.imshow('Output', output)
     #cv2.waitKey()
 
+    print("Target Address :", end=" ")
+    print(circles[0, mi][0], circles[0, mi][1])
     return (circles[0,mi][0], -circles[0,mi][1])
 
 # Move starting point function
 # x, y, z는 초기 teaching 위치 x,y,z 값(GetPose로 얻음)
-def Mov_StartingPoint(x,y,z) :
+def Mov_StartingPoint(api, x,y,z) :
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, x-50, y, z, 0, 0)
     time.sleep(3)
 
 # Move to the bolt and fasten the bolt
-def Robot_Work(X, Y, x, y, z) : # 캠에서 볼트 인식하여 리턴한 X, Y 값
+def Robot_Work(api, X, Y, x, y, z) : # 캠에서 볼트 인식하여 리턴한 X, Y 값
     # X값 구간별 나눔 코드
     # 상수 들어간 위치 적절한 좌표 값 입력해줄 것 !
+    xx = 222.5232
+    yy = 0
     if(X >= 0 and X < 200) :
         # 오른쪽 볼트로 이동
         dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x-50, y, z+20, 0, 0)  # z 위로 이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, y, z+20, 0, 0)  # x이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx+2, y, z+20, 0, 0)  # x이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, -76.9479, z+20, 0, 0)  # y이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx+2, yy-75, z+20, 0, 0)  # y이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, -76.9479, z, 0, 0)  # z 아래로 이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx+2, yy-75, 14, 0, 0)  # z 아래로 이동
         time.sleep(5)
     elif(X >= 200 and X < 400) :
         # 중앙 볼트로 이동
         dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x-50, y, z+20, 0, 0)  # z 위로 이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, y, z+20, 0, 0)  # x이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx, y, z+20, 0, 0)  # x이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, -76.9479, z+20, 0, 0)  # y이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx, yy, z+20, 0, 0)  # y이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, -76.9479, z, 0, 0)  # z 아래로 이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx, yy, 14, 0, 0)  # z 아래로 이동
         time.sleep(5)
     elif(X >= 400 and X < 600) :
         # 왼쪽 볼트로 이동
         dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, x-50, y, z+20, 0, 0)  # z 위로 이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, y, z+20, 0, 0)  # x이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx-2, y, z+20, 0, 0)  # x이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, -76.9479, z+20, 0, 0)  # y이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx-2, yy+75, z+20, 0, 0)  # y이동
         time.sleep(5)
-        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, 227.1407, -76.9479, z, 0, 0)  # z 아래로 이동
+        dType.SetPTPCmd(api, dType.PTPMode.PTPMOVLXYZMode, xx-2, yy+75, 14, 0, 0)  # z 아래로 이동
         time.sleep(5)
     #이동 완료 
 
@@ -203,3 +243,22 @@ def Robot_Work(X, Y, x, y, z) : # 캠에서 볼트 인식하여 리턴한 X, Y �
     dType.SetPTPCmd(api, dType.PTPMode.PTPMOVJXYZMode, tempX, tempY, tempZ+20, 0, 0)
     time.sleep(2)
 
+def Voice() :
+    # obtain audio from the microphone
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Say something!")
+        audio = r.listen(source)
+
+    # recognize speech using Google Speech Recognition
+    try:
+        # for testing purposes, we're just using the default API key
+        # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
+        # instead of `r.recognize_google(audio)`
+        print("Google Speech Recognition thinks you said " + r.recognize_google(audio))
+    except sr.UnknownValueError:
+        print("Google Speech Recognition could not understand audio")
+    except sr.RequestError as e:
+        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+
+    return r.recognize_google(audio)
