@@ -1,0 +1,7 @@
+﻿  stdafx.cpp
+  DobotDemoDlg.cpp
+  DobotDemo.cpp
+  正在生成代码...
+DobotDemo.obj : warning LNK4075: 忽略“/EDITANDCONTINUE”(由于“/SAFESEH”规范)
+  DobotDemo.vcxproj -> E:\dobot\Dobot 2.0\2.0 API\DobotDemoV2.0\DobotDemoForMFC\Debug\DobotDemo.exe
+  DobotDemo.vcxproj -> E:\dobot\Dobot 2.0\2.0 API\DobotDemoV2.0\DobotDemoForMFC\Debug\DobotDemo.pdb (Full PDB)
