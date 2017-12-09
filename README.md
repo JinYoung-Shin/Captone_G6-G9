@@ -14,6 +14,4 @@
 ![Alt text](/images/Recognition.png)
 <br>
 
-<div style="text-align : center">
 ![Alt text](/images/VideoRecognition.png)
-</div>
