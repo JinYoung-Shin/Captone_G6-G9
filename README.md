@@ -8,10 +8,11 @@
 - Google Voice Recognition
 - Intel OpenCV
 - Dobot API
-<br>
+
 ![Alt text](/images/CooperativeRobot.png)
 <br>
 ![Alt text](/images/Recognition.png)
 <br>
+<center>
 ![Alt text](/images/VideoRecognition.png)
-
+</center>
