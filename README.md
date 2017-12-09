@@ -13,6 +13,7 @@
 <br>
 ![Alt text](/images/Recognition.png)
 <br>
+
 <center>
 ![Alt text](/images/VideoRecognition.png)
 </center>
